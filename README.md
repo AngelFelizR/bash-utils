@@ -12,6 +12,7 @@ bash-utils/
 │   ├── delete_nixbld_users.sh
 │   └── update-touchpad.sh
 ├── file-utils.sh
+├── youtube-utils.sh
 └── README.md
 ```
 
@@ -23,6 +24,46 @@ Utility functions for working with files.
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `print_files` | Prints the contents of text files matching a shell pattern. Supports recursive search through a configurable directory depth. Particularly useful when sharing project files with LLMs.          |
 | `copy_as_md`  | Copies one or more files to a destination directory while replacing their extension with `.md`. Useful when preparing Quarto (`.qmd`) or R Markdown (`.Rmd`) files for Markdown-based workflows. |
+
+### `youtube-utils.sh`
+
+Functions for downloading YouTube videos and audio with `yt-dlp`, working around
+YouTube's anti-bot checks (session cookies, Deno, remote JS components).
+
+| Function         | Description                                                                                  |
+| ---------------- | -------------------------------------------------------------------------------------------- |
+| `download_video` | Downloads a video at the best available quality (up to 4K), merging video+audio into `.mp4`. |
+| `download_audio` | Downloads only the audio in the best native format (`m4a`/`opus`), or MP3 with `--mp3`.      |
+
+Both share these options:
+
+| Option                | Effect                                                              |
+| --------------------- | ------------------------------------------------------------------- |
+| `-F, --list-formats`  | List available formats without downloading.                         |
+| `-s, --subs [lang]`   | Download subtitles (default: `es,en`).                              |
+| `-t, --thumbnail`     | Save thumbnail and embed metadata (video only).                     |
+| `-p, --playlist [n-m]`| Download a playlist, optionally limited to a range of items.        |
+| `--sponsorblock`      | Mark sponsored segments.                                            |
+| `-n, --notify`        | Send a desktop notification when finished (`notify-send`).          |
+| `--no-update`         | Skip the automatic check/update of `yt-dlp` and Deno.               |
+
+Before each download, the functions check for a newer `yt-dlp` and Deno release
+and update them automatically. `yt-dlp` is downloaded to `/usr/local/bin`
+(requires `sudo`); Deno updates via `deno upgrade`.
+
+#### Cookies
+
+YouTube blocks anonymous 1080p+ downloads, so these functions rely on a session
+cookie file `youtube-AF-cookies.txt` stored in this repository's root (and listed
+in `.gitignore`, since it is sensitive).
+
+To refresh it when it expires (e.g. the *"Sign in to confirm you're not a bot"*
+error, or the *"cookies are no longer valid"* warning):
+
+1. Install the **"Get cookies.txt LOCALLY"** extension in Chromium.
+2. Open YouTube with your session logged in.
+3. Click the extension and press **Export**.
+4. Overwrite `~/bash-utils/youtube-AF-cookies.txt`.
 
 ## Archived Scripts
 
@@ -39,6 +80,7 @@ Add the following line to your `~/.bashrc`:
 
 ```bash
 source ~/bash-utils/file-utils.sh
+source ~/bash-utils/youtube-utils.sh
 ```
 
 Reload your shell:

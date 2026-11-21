@@ -1,3 +1,160 @@
+# -----------------------------------------------------------------------------
+# print_env_config
+#
+# Description:
+#   Prints the configuration files required to understand and reproduce the
+#   project's development environment.
+#
+#   The function is intentionally limited to configuration and package-definition
+#   files. It does not inspect source code, tests, documentation, data, or
+#   generated files.
+#
+# Files inspected:
+#
+#   Project root:
+#     - default.nix
+#     - .envrc
+#     - *.sh              (shell scripts located directly in the root)
+#     - DESCRIPTION       (R package)
+#     - pyproject.toml     (Python package)
+#     - docker-compose.yml
+#     - docker-compose.yaml
+#     - Dockerfile
+#
+#   Nix directory:
+#     - nix/*.nix
+#
+#   All existing matching files are printed. Missing files are silently skipped,
+#   allowing the function to be used across R and Python projects.
+#
+# Output:
+#   Each file is printed with a header containing its path, making the output
+#   suitable for copying into a chat, issue, debugging session, or documentation.
+#
+# Requirements:
+#   - Bash
+#   - cat
+#
+# Usage:
+#   print_env_config
+#
+# Example:
+#   $ print_env_config
+#
+# -----------------------------------------------------------------------------
+print_env_config() {
+
+    echo "============================================================"
+    echo " PROJECT ENVIRONMENT CONFIGURATION"
+    echo "============================================================"
+    echo
+
+    # -------------------------------------------------------------------------
+    # Nix configuration
+    # -------------------------------------------------------------------------
+    echo "==================== NIX FILES ============================="
+    echo
+
+    if [[ -f "default.nix" ]]; then
+        echo "===== default.nix ====="
+        cat "default.nix"
+        echo
+    fi
+
+    if [[ -d "nix" ]]; then
+        for file in nix/*.nix; do
+            [[ -f "$file" ]] || continue
+
+            echo "===== $file ====="
+            cat "$file"
+            echo
+        done
+    fi
+
+    # -------------------------------------------------------------------------
+    # Direnv configuration
+    # -------------------------------------------------------------------------
+    echo "==================== DIRENV ================================"
+    echo
+
+    if [[ -f ".envrc" ]]; then
+        echo "===== .envrc ====="
+        cat ".envrc"
+        echo
+    fi
+
+    # -------------------------------------------------------------------------
+    # Root shell scripts
+    # -------------------------------------------------------------------------
+    echo "==================== SHELL SCRIPTS ========================="
+    echo
+
+    [[ -f "Makefile" ]] || continue
+    echo "===== Makefile ====="
+    cat "Makefile"
+    echo
+
+    for file in ./*.sh; do
+        [[ -f "$file" ]] || continue
+
+        echo "===== $file ====="
+        cat "$file"
+        echo
+    done
+
+    # -------------------------------------------------------------------------
+    # Package definition
+    # -------------------------------------------------------------------------
+    echo "==================== PACKAGE ==============================="
+    echo
+
+    # R package
+    if [[ -f "DESCRIPTION" ]]; then
+        echo "===== DESCRIPTION (R) ====="
+        cat "DESCRIPTION"
+        echo
+    fi
+
+    # Python package
+    if [[ -f "pyproject.toml" ]]; then
+        echo "===== pyproject.toml (Python) ====="
+        cat "pyproject.toml"
+        echo
+    fi
+
+    # -------------------------------------------------------------------------
+    # Docker configuration
+    # -------------------------------------------------------------------------
+    echo "==================== DOCKER ================================="
+    echo
+
+    if [[ -f "docker-compose.yml" ]]; then
+        echo "===== docker-compose.yml ====="
+        cat "docker-compose.yml"
+        echo
+    fi
+
+    if [[ -f "docker-compose.yaml" ]]; then
+        echo "===== docker-compose.yaml ====="
+        cat "docker-compose.yaml"
+        echo
+    fi
+
+    if [[ -f "Dockerfile" ]]; then
+        echo "===== Dockerfile ====="
+        cat "Dockerfile"
+        echo
+    fi
+
+    # -------------------------------------------------------------------------
+    # End marker
+    # -------------------------------------------------------------------------
+    echo "============================================================"
+    echo " END CONFIGURATION"
+    echo "============================================================"
+}
+
+
 # ------------------------------------------------------------------------------
 # print_files
 #
